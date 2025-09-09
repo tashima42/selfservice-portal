@@ -53,7 +53,7 @@ func handleRegisterIP(pangolinClient *pangolin.Pangolin) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		fmt.Fprintln(w, "<button class=\"btn\">Success</button>")
+		fmt.Fprintln(w, "Success")
 	}
 }
 
