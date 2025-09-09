@@ -26,29 +26,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
-
-	//
-	// pangolin, err := initPangolin(httpClient)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	//
-	// // resources, err := pangolin.getResources()
-	// // if err != nil {
-	// // 	log.Fatal(err)
-	// // }
-	// // fmt.Printf("%+v\n", resources)
-	//
-	// createdRule, err := pangolin.createRule(PangolinRule{
-	// 	Action:   String("ACCEPT"),
-	// 	Match:    String("IP"),
-	// 	Value:    String("177.220.180.248"),
-	// 	Priority: Int(10),
-	// 	Enabled:  Bool(true),
-	// }, 5)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
 }
 
 func run(ctx context.Context, w io.Writer, lookupEnv func(string) (string, bool), version string) error {
