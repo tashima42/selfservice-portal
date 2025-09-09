@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -47,12 +48,12 @@ func handleRegisterIP(pangolinClient *pangolin.Pangolin) http.HandlerFunc {
 			return
 		}
 
-		createdRule, err := pangolinClient.CreateRule(pangolinRule, resourceID)
+		_, err = pangolinClient.CreateRule(pangolinRule, resourceID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		encode[pangolin.PangolinRule](w, r, http.StatusCreated, *createdRule)
+		fmt.Fprintln(w, "<button class=\"btn\">Success</button>")
 	}
 }
 
@@ -94,12 +95,6 @@ func handleHomePage(pangolinClient *pangolin.Pangolin) http.HandlerFunc {
 	}
 }
 
-// func handleSelectPangolinResources(pangolinClient *pangolin.Pangolin) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		w.Header().Set("Content-Type", "text/html")
-// 	}
-// }
-
 const homePage = `
 <!DOCTYPE html>
 <html lang="en" data-theme="caramellatte">
@@ -110,6 +105,7 @@ const homePage = `
 	<link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
 	<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 	<link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+	<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.js" integrity="sha384-yWakaGAFicqusuwOYEmoRjLNOC+6OFsdmwC2lbGQaRELtuVEqNzt11c2J711DeCZ" crossorigin="anonymous"></script>
 </head>
 <body>
 	<div class="navbar bg-neutral text-neutral-content">
@@ -128,7 +124,7 @@ const homePage = `
 				<div>{{ $resource.Name }}</div>
 				<div class="text-xs uppercase font-semibold opacity-60">{{ $resource.FullDomain }}</div>
 			</div>
-			<button class="btn">Register</button>
+			<button class="btn" id="register-{{ $resource.ResourceID }}" hx-put="/register/{{ $resource.ResourceID }}" hx-trigger="click" hx-swap="this">Register</button>
 		</li>
 		</li>
 		{{ end }}
