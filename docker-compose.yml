@@ -1,0 +1,9 @@
+services:
+  selfservice-portal:
+    container_name: selfservice-portal
+    image: "${IMAGE:-ghcr.io/tashima42/selfservice-portal:v0.0.2}"
+    ports:
+      - "${PORT:-8356}:8356"
+    env_file:
+      - .env
+    restart: unless-stopped

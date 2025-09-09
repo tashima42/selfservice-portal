@@ -11,7 +11,7 @@ COPY ./ ./
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /selfserviceportal -ldflags "-w -X main.Version=${VERSION}" .
 
-FROM scratch
+FROM alpine
 
 WORKDIR /
 
