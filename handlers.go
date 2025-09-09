@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/tashima42/selfservice-portal/pangolin"
@@ -30,8 +31,38 @@ func handleGetHealth(version string) http.HandlerFunc {
 	}
 }
 
+func handleRegisterIP(pangolinClient *pangolin.Pangolin) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		pangolinRule := pangolin.PangolinRule{
+			Action:   pangolin.String("ACCEPT"),
+			Match:    pangolin.String("IP"),
+			Value:    pangolin.String(r.Header.Get("X-Real-IP")),
+			Priority: pangolin.Int(10),
+			Enabled:  pangolin.Bool(true),
+		}
+
+		resourceID, err := strconv.Atoi(r.PathValue("id"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		createdRule, err := pangolinClient.CreateRule(pangolinRule, resourceID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		encode[pangolin.PangolinRule](w, r, http.StatusCreated, *createdRule)
+	}
+}
+
 func handleHomePage(pangolinClient *pangolin.Pangolin) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+
 		resources, err := pangolinClient.GetResources()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -44,7 +75,7 @@ func handleHomePage(pangolinClient *pangolin.Pangolin) http.HandlerFunc {
 		}
 
 		templateVars := TemplateVars{
-			RealIP:            r.RemoteAddr,
+			RealIP:            r.Header.Get("X-Real-IP"),
 			PangolinResources: *resources,
 		}
 

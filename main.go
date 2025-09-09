@@ -101,7 +101,8 @@ func run(ctx context.Context, w io.Writer, lookupEnv func(string) (string, bool)
 func route(log *slog.Logger, version string, pangolinClient *pangolin.Pangolin) http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("GET /health", handleGetHealth(version))
-	mux.Handle("GET /", handleHomePage(pangolinClient))
+	mux.HandleFunc("PUT /register/{id}", handleRegisterIP(pangolinClient))
+	mux.HandleFunc("GET /", handleHomePage(pangolinClient))
 
 	handler := accesslog(mux, log)
 	handler = recovery(handler, log)
@@ -122,7 +123,7 @@ func accesslog(next http.Handler, log *slog.Logger) http.Handler {
 			slog.String("method", r.Method),
 			slog.String("path", r.URL.Path),
 			slog.String("query", r.URL.RawQuery),
-			slog.String("ip", r.RemoteAddr),
+			slog.String("ip", r.Header.Get("X-Real-IP")),
 			slog.Int("status", wr.status),
 			slog.Int("bytes", wr.numBytes))
 	})
